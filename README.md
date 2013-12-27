@@ -2,10 +2,10 @@
 A Go seed project for building RESTful JSON API using [gocraft/web](https://github.com/gocraft/web) as router and [Goconvey](http://smartystreets.github.io/goconvey/) as test framework
 
 ## Features
-- Modular structure with pluggable endpoints
-- Base controller with common actions
-- Base data service with common methods
-- Testable using [Goconvey](http://smartystreets.github.io/goconvey/)
+* Modular structure with pluggable endpoints
+* Base controller with common actions
+* Base data service with common methods
+* Testable using [Goconvey](http://smartystreets.github.io/goconvey/)
 
 ## Usage
 1. Clone/download this repo into your project folder
