@@ -92,7 +92,6 @@ func (c *Controller) ReadMany(da DataAccessor, rw web.ResponseWriter, req *web.R
 	}
 
 	resp, err := json.MarshalIndent(&objects, "", "    ")
-	log.Println(string(resp))
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		log.Panicln(err)
