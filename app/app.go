@@ -21,7 +21,6 @@ type Application struct {
 
 // Create a new App and initialize routes for endpoints
 func New() *Application {
-
 	app := &Application{}
 	app.Prefix = "/api"
 	app.RootRouter = web.NewWithPrefix(Context{}, app.Prefix)

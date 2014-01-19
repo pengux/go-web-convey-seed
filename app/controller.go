@@ -15,7 +15,6 @@ type Controller struct{}
 
 // Unmarshal request body in JSON to a struct
 func (c *Controller) UnmarshalBody(rw web.ResponseWriter, req *web.Request, object interface{}) {
-
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
@@ -31,7 +30,6 @@ func (c *Controller) UnmarshalBody(rw web.ResponseWriter, req *web.Request, obje
 
 // Insert object into db
 func (c *Controller) Create(da DataAccessor, rw web.ResponseWriter, object EntityHandler, endpoint string) {
-
 	object.SetId("")
 	object.SetCreatedAt(time.Now())
 
@@ -46,7 +44,6 @@ func (c *Controller) Create(da DataAccessor, rw web.ResponseWriter, object Entit
 }
 
 func (c *Controller) Delete(da DataAccessor, rw web.ResponseWriter, id string) {
-
 	err := da.Delete(id)
 	if err != nil {
 		switch err := err.(type) {
@@ -62,7 +59,6 @@ func (c *Controller) Delete(da DataAccessor, rw web.ResponseWriter, id string) {
 }
 
 func (c *Controller) Read(da DataAccessor, rw web.ResponseWriter, req *web.Request) {
-
 	object, err := da.Read(req.PathParams["id"])
 	if err != nil {
 		switch err.(type) {
@@ -84,7 +80,6 @@ func (c *Controller) Read(da DataAccessor, rw web.ResponseWriter, req *web.Reque
 }
 
 func (c *Controller) ReadMany(da DataAccessor, rw web.ResponseWriter, req *web.Request) {
-
 	objects, err := da.ReadMany()
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -101,7 +96,6 @@ func (c *Controller) ReadMany(da DataAccessor, rw web.ResponseWriter, req *web.R
 }
 
 func (c *Controller) Replace(da DataAccessor, rw web.ResponseWriter, id string, object EntityHandler) {
-
 	object.SetId("")
 	object.SetCreatedAt(time.Time{})
 

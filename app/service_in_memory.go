@@ -26,7 +26,6 @@ type InMemoryDBService struct {
 }
 
 func (s *InMemoryDBService) Init() {
-
 	// Init table if it doesn't exists
 	if _, ok := db[s.TblName]; !ok {
 		db[s.TblName] = make(map[string]EntityHandler)
@@ -34,7 +33,6 @@ func (s *InMemoryDBService) Init() {
 }
 
 func (s *InMemoryDBService) Create(object EntityHandler) (id string, err error) {
-
 	// Set arbitary Id string
 	id = uuid.New()
 	object.SetId(id)
@@ -44,7 +42,6 @@ func (s *InMemoryDBService) Create(object EntityHandler) (id string, err error) 
 }
 
 func (s *InMemoryDBService) Delete(id string) error {
-
 	if _, ok := db[s.TblName][id]; ok {
 		delete(db[s.TblName], id)
 	} else {
@@ -55,7 +52,6 @@ func (s *InMemoryDBService) Delete(id string) error {
 }
 
 func (s *InMemoryDBService) Read(id string) (object EntityHandler, err error) {
-
 	if val, ok := db[s.TblName][id]; ok {
 		return val, nil
 	}
@@ -64,7 +60,6 @@ func (s *InMemoryDBService) Read(id string) (object EntityHandler, err error) {
 }
 
 func (s *InMemoryDBService) ReadMany() (objects []EntityHandler, err error) {
-
 	for _, object := range db[s.TblName] {
 		objects = append(objects, object)
 	}
@@ -72,7 +67,6 @@ func (s *InMemoryDBService) ReadMany() (objects []EntityHandler, err error) {
 }
 
 func (s *InMemoryDBService) Update(id string, object EntityHandler) error {
-
 	db[s.TblName][id] = object
 
 	return nil

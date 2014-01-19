@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/pengux/go-web-convey-seed/app"
 	"log"
 	"net/http"
+
+	"github.com/pengux/go-web-convey-seed/app"
 )
 
 const (
@@ -11,7 +12,6 @@ const (
 )
 
 func main() {
-
 	App := app.New()
 	log.Print("Listen to port ", Address)
 	http.ListenAndServe(Address, App.RootRouter)

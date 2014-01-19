@@ -20,7 +20,6 @@ type Todo struct {
 }
 
 func init() {
-
 	app.Bootstraps["todos"] = func(currentApp *app.Application) {
 
 		currentApp.Endpoints["todos"] = "/todos"
