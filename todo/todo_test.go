@@ -1,0 +1,118 @@
+package todo_test
+
+import (
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
+	"github.com/pengux/go-web-convey-seed/app"
+	"github.com/pengux/go-web-convey-seed/todo"
+	. "github.com/smartystreets/goconvey/convey"
+)
+
+func TestTodo(t *testing.T) {
+
+	todo_test := app.New()
+
+	Convey("Given the todos endpoint", t, func() {
+		var TestTodo todo.Todo
+
+		Convey("When adding a todo to the collection", func() {
+			recorder := httptest.NewRecorder()
+			request, _ := http.NewRequest("POST", todo_test.GetEndpointWithPrefix("todos"), strings.NewReader(`{
+				"title": "Master Go",
+				"done": false
+			}`))
+
+			todo_test.RootRouter.ServeHTTP(recorder, request)
+
+			Convey("It should returns a 201 Created status", func() {
+				So(recorder.Code, ShouldEqual, 201)
+			})
+
+		})
+
+		Convey("When listing all todos from the collection", func() {
+			recorder := httptest.NewRecorder()
+			request, _ := http.NewRequest("GET", todo_test.GetEndpointWithPrefix("todos"), nil)
+
+			todo_test.RootRouter.ServeHTTP(recorder, request)
+
+			Convey("It should contains the 'Testtodo' object(s)", func() {
+				var todos []todo.Todo
+				err := json.Unmarshal(recorder.Body.Bytes(), &todos)
+				if err != nil {
+					panic(err)
+				}
+
+				for _, todo := range todos {
+					if todo.Title == "Master Go" {
+						TestTodo = todo
+						break
+					}
+				}
+
+				So(TestTodo.Id, ShouldNotEqual, "")
+			})
+		})
+
+		Convey("When updating the 'Testtodo'", func() {
+			TestTodo.Done = true
+			data, err := json.Marshal(TestTodo)
+			if err != nil {
+				panic(err)
+			}
+
+			recorder := httptest.NewRecorder()
+			request, _ := http.NewRequest("PUT", todo_test.GetEndpointWithPrefix("todos")+"/"+TestTodo.Id, strings.NewReader(string(data)))
+
+			todo_test.RootRouter.ServeHTTP(recorder, request)
+
+			Convey("the data should persist", func() {
+				recorder := httptest.NewRecorder()
+				request, _ := http.NewRequest("GET", todo_test.GetEndpointWithPrefix("todos")+"/"+TestTodo.Id, nil)
+
+				todo_test.RootRouter.ServeHTTP(recorder, request)
+				var TestTodoUpdated todo.Todo
+				err := json.Unmarshal(recorder.Body.Bytes(), &TestTodoUpdated)
+				if err != nil {
+					panic(err)
+				}
+
+				So(TestTodoUpdated.Done, ShouldEqual, true)
+			})
+		})
+
+		Convey("When deleting the 'Testtodo'", func() {
+			recorder := httptest.NewRecorder()
+			request, _ := http.NewRequest("DELETE", todo_test.GetEndpointWithPrefix("todos")+"/"+TestTodo.Id, nil)
+
+			todo_test.RootRouter.ServeHTTP(recorder, request)
+
+			Convey("it should returns 200 Status", func() {
+				So(recorder.Code, ShouldEqual, 200)
+			})
+
+			Convey("and deleting it again should return 404 Not Found", func() {
+				recorder := httptest.NewRecorder()
+				request, _ := http.NewRequest("DELETE", todo_test.GetEndpointWithPrefix("todos")+"/"+TestTodo.Id, nil)
+
+				todo_test.RootRouter.ServeHTTP(recorder, request)
+
+				So(recorder.Code, ShouldEqual, 404)
+			})
+
+			Convey("and accessing the object should gives 404 Not Found", func() {
+				recorder := httptest.NewRecorder()
+				request, _ := http.NewRequest("GET", todo_test.GetEndpointWithPrefix("todos")+"/"+TestTodo.Id, nil)
+
+				todo_test.RootRouter.ServeHTTP(recorder, request)
+
+				So(recorder.Code, ShouldEqual, 404)
+			})
+
+		})
+	})
+}
