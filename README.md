@@ -1,3 +1,5 @@
+[![baby-gopher](https://raw2.github.com/drnic/babygopher-site/gh-pages/images/babygopher-badge.png)](http://www.babygopher.org)
+
 # go-web-convey-seed
 A Go seed project for building RESTful JSON API using [gocraft/web](https://github.com/gocraft/web) as router and [Goconvey](http://smartystreets.github.io/goconvey/) as test framework
 
