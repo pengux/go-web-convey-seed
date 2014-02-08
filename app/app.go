@@ -7,40 +7,48 @@ import (
 )
 
 var (
-	Bootstraps = make(map[string]func(app *Application))
+	Bootstraps = make(map[string]func(app *Application, context interface{}))
 )
 
 type Context struct{}
 
 type Application struct {
-	RootRouter *web.Router
-	Ctrl       *Controller
-	Endpoints  map[string]string
 	Prefix     string
+	RootRouter *web.Router
+	Endpoints  map[string]string
 }
 
 // Create a new App and initialize routes for endpoints
-func New() *Application {
-	app := &Application{}
-	app.Prefix = "/api"
-	app.RootRouter = web.NewWithPrefix(Context{}, app.Prefix)
-	app.Ctrl = &Controller{}
-	app.Endpoints = make(map[string]string)
-
-	// Run bootstrap functions for endpoints
-	for _, fn := range Bootstraps {
-		fn(app)
+func New(prefix string, contexts map[string]interface{}) *Application {
+	// Check that there is a context for "app"
+	if _, ok := contexts["app"]; !ok {
+		panic(fmt.Sprintf("You must provide a context for 'app'"))
 	}
 
-	return app
+	newApp := &Application{
+		prefix,
+		web.NewWithPrefix(contexts["app"], prefix),
+		make(map[string]string),
+	}
+
+	// Run bootstrap functions for endpoints
+	for endpoint, fn := range Bootstraps {
+		if endpointCtx, ok := contexts[endpoint]; ok {
+			fn(newApp, endpointCtx)
+		} else {
+			fn(newApp, contexts["app"])
+		}
+	}
+
+	return newApp
 }
 
 // Get endpoint with prefix
-func (app *Application) GetEndpointWithPrefix(key string) string {
-	endpoint, ok := app.Endpoints[key]
+func (a *Application) GetEndpointWithPrefix(key string) string {
+	endpoint, ok := a.Endpoints[key]
 	if !ok {
-		panic(fmt.Sprintf("No endpoint %s found", key))
+		panic(fmt.Sprintf("Endpoint %s was not found", key))
 	}
 
-	return app.Prefix + endpoint
+	return a.Prefix + endpoint
 }

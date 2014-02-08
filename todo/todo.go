@@ -4,9 +4,13 @@ import (
 	"github.com/pengux/go-web-convey-seed/app"
 )
 
+const (
+	ENDPOINT     = "todos"
+	ENDPOINT_URL = "/" + ENDPOINT
+)
+
 var (
 	Service *TodoService
-	App     *app.Application
 )
 
 type Context struct {
@@ -19,21 +23,30 @@ type Todo struct {
 	Done  bool   `json:"done"`
 }
 
-func init() {
-	app.Bootstraps["todos"] = func(currentApp *app.Application) {
+type Todos []*Todo
 
-		currentApp.Endpoints["todos"] = "/todos"
-		App = currentApp
+func (todos *Todos) Append(object interface{}) {
+	todo := object.(*Todo)
+	*todos = append(*todos, todo)
+}
+
+func init() {
+	app.Bootstraps[ENDPOINT] = func(currentApp *app.Application, context interface{}) {
+
+		currentApp.Endpoints[ENDPOINT] = ENDPOINT_URL
 
 		dbService := &app.InMemoryDBService{}
 		dbService.Init()
-		Service = &TodoService{
-			dbService,
+
+		Ctrl := &Controller{
+			&app.Controller{},
+			currentApp,
+			&TodoService{
+				dbService,
+			},
 		}
 
-		Ctrl := &Controller{}
-
-		currentApp.RootRouter.Subrouter(Context{}, currentApp.Endpoints["todos"]).
+		currentApp.RootRouter.Subrouter(context, currentApp.Endpoints["todos"]).
 			Get("/", Ctrl.ReadMany).
 			Get("/:id", Ctrl.Read).
 			Post("/", Ctrl.Create).

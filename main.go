@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/pengux/go-web-convey-seed/app"
+	"github.com/pengux/go-web-convey-seed/todo"
 )
 
 const (
@@ -12,7 +13,13 @@ const (
 )
 
 func main() {
-	App := app.New()
+	mainContext := &app.Context{}
+	app := app.New("", map[string]interface{}{
+		"app": mainContext,
+		"todos": &todo.Context{
+			mainContext,
+		},
+	})
 	log.Print("Listen to port ", Address)
-	http.ListenAndServe(Address, App.RootRouter)
+	http.ListenAndServe(Address, app.RootRouter)
 }

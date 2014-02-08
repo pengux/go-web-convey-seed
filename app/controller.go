@@ -29,7 +29,7 @@ func (c *Controller) UnmarshalBody(rw web.ResponseWriter, req *web.Request, obje
 }
 
 // Insert object into db
-func (c *Controller) Create(da DataAccessor, rw web.ResponseWriter, object EntityHandler, endpoint string) {
+func (c *Controller) Create(da DataAccessor, rw web.ResponseWriter, object EntityHandler, redirectUrl string) {
 	object.SetId("")
 	object.SetCreatedAt(time.Now())
 
@@ -39,7 +39,7 @@ func (c *Controller) Create(da DataAccessor, rw web.ResponseWriter, object Entit
 		log.Panicln(err)
 	}
 
-	rw.Header().Set("Location", endpoint+"/"+id)
+	rw.Header().Set("Location", redirectUrl+"/"+id)
 	rw.WriteHeader(http.StatusCreated)
 }
 
@@ -58,8 +58,8 @@ func (c *Controller) Delete(da DataAccessor, rw web.ResponseWriter, id string) {
 	rw.WriteHeader(http.StatusOK)
 }
 
-func (c *Controller) Read(da DataAccessor, rw web.ResponseWriter, req *web.Request) {
-	object, err := da.Read(req.PathParams["id"])
+func (c *Controller) Read(da DataAccessor, rw web.ResponseWriter, req *web.Request, object EntityHandler) {
+	result, err := da.Read(req.PathParams["id"], object)
 	if err != nil {
 		switch err.(type) {
 		case RowNotFoundError:
@@ -70,7 +70,7 @@ func (c *Controller) Read(da DataAccessor, rw web.ResponseWriter, req *web.Reque
 		}
 	}
 
-	resp, err := json.MarshalIndent(&object, "", "    ")
+	resp, err := json.MarshalIndent(&result, "", "    ")
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		log.Panicln(err)
@@ -79,14 +79,14 @@ func (c *Controller) Read(da DataAccessor, rw web.ResponseWriter, req *web.Reque
 	rw.Write(resp)
 }
 
-func (c *Controller) ReadMany(da DataAccessor, rw web.ResponseWriter, req *web.Request) {
-	objects, err := da.ReadMany()
+func (c *Controller) ReadMany(da DataAccessor, rw web.ResponseWriter, req *web.Request, objects EntitiesFactory) {
+	err := da.ReadMany(objects)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		log.Panicln(err)
 	}
 
-	resp, err := json.MarshalIndent(&objects, "", "    ")
+	resp, err := json.MarshalIndent(objects, "", "    ")
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		log.Panicln(err)
@@ -96,9 +96,6 @@ func (c *Controller) ReadMany(da DataAccessor, rw web.ResponseWriter, req *web.R
 }
 
 func (c *Controller) Replace(da DataAccessor, rw web.ResponseWriter, id string, object EntityHandler) {
-	object.SetId("")
-	object.SetCreatedAt(time.Time{})
-
 	err := da.Update(id, object)
 	if err != nil {
 		rw.WriteHeader(http.StatusBadRequest)

@@ -20,10 +20,14 @@ type EntityHandler interface {
 	SetCreatedAt(t time.Time)
 }
 
+type EntitiesFactory interface {
+	Append(object interface{})
+}
+
 type DataAccessor interface {
 	Create(object EntityHandler) (id string, err error)
 	Delete(id string) error
-	Read(id string) (object EntityHandler, err error)
-	ReadMany() (objects []EntityHandler, err error)
+	Read(id string, object EntityHandler) (result EntityHandler, err error)
+	ReadMany(objects EntitiesFactory) (err error)
 	Update(id string, object EntityHandler) error
 }

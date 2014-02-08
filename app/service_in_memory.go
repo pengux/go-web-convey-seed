@@ -51,19 +51,20 @@ func (s *InMemoryDBService) Delete(id string) error {
 	return nil
 }
 
-func (s *InMemoryDBService) Read(id string) (object EntityHandler, err error) {
+func (s *InMemoryDBService) Read(id string, object EntityHandler) (result EntityHandler, err error) {
 	if val, ok := db[s.TblName][id]; ok {
-		return val, nil
+		object = val
+		return object, nil
 	}
 
 	return nil, RowNotFoundError(id)
 }
 
-func (s *InMemoryDBService) ReadMany() (objects []EntityHandler, err error) {
+func (s *InMemoryDBService) ReadMany(objects EntitiesFactory) (err error) {
 	for _, object := range db[s.TblName] {
-		objects = append(objects, object)
+		objects.Append(object)
 	}
-	return objects, nil
+	return nil
 }
 
 func (s *InMemoryDBService) Update(id string, object EntityHandler) error {
