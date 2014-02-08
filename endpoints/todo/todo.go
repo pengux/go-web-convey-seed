@@ -35,6 +35,7 @@ func init() {
 
 		currentApp.Endpoints[ENDPOINT] = ENDPOINT_URL
 
+		// Init DB service
 		dbService := &app.InMemoryDBService{}
 		dbService.Init()
 

@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/pengux/go-web-convey-seed/app"
-	"github.com/pengux/go-web-convey-seed/todo"
+	"github.com/pengux/go-web-convey-seed/endpoints/todo"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
