@@ -1,0 +1,5 @@
+{
+	"ENV": "production",
+	"API_PORT": 9090,
+	"API_PREFIX": "/v1"
+}
